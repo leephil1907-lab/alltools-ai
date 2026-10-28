@@ -145,11 +145,11 @@ function App() {
   return <div className="app-shell">
     <aside className={'sidebar ' + (sidebarOpen ? 'sidebar-open' : '')}>
       <div className="brand">
-        <div className="brand-mark"><Command size={21} strokeWidth={2.5}/></div>
-        <div><div className="brand-name">alltools<span>.ai</span></div><div className="brand-sub">YOUR UNIFIED WORKSPACE</div></div>
+        <img className="brand-mark" src="/alltools-mark.svg" alt="AllTools AI logo" width="38" height="38" />
+        <div><div className="brand-name">alltools<span>.ai</span></div><div className="brand-sub">AI · TOOLS · WORKFLOWS</div></div>
         <button className="icon-button mobile-close" onClick={() => setSidebarOpen(false)} aria-label="Close menu"><X size={18}/></button>
       </div>
-      <button className="workspace-switch"><div className="workspace-avatar">A</div><div className="workspace-copy"><strong>Personal workspace</strong><span>Free workspace</span></div><ChevronDown size={15}/></button>
+      <button className="workspace-switch"><div className="workspace-avatar">A</div><div className="workspace-copy"><strong>My workspace</strong><span>Unified workspace</span></div><ChevronDown size={15}/></button>
       <div className="side-label">WORKSPACE</div>
       <nav className="nav-list">
         <button className={'nav-item ' + (view === 'overview' ? 'active' : '')} onClick={() => {setView('overview');setActiveGroup('All tools');setSidebarOpen(false)}}><LayoutDashboard size={17}/>Overview</button>
@@ -163,7 +163,7 @@ function App() {
       <div className="sidebar-bottom">
         <div className="upgrade-card"><div className="upgrade-icon"><Sparkles size={16}/></div><strong>Your tools, connected.</strong><p>Connect providers as the workspace grows. Keep your workflow in one place.</p><button onClick={() => setToast('Integration settings are on the roadmap')}>Explore integrations <ArrowRight size={14}/></button></div>
         <button className="nav-item settings-link" onClick={() => setToast('Settings module is coming soon')}><Settings2 size={17}/>Settings</button>
-        <div className="profile-row"><div className="profile-avatar">C</div><div className="profile-copy"><strong>Calvin's workspace</strong><span>Workspace owner</span></div><MoreHorizontal size={18}/></div>
+        <div className="profile-row"><div className="profile-avatar">A</div><div className="profile-copy"><strong>AllTools workspace</strong><span>Workspace overview</span></div><MoreHorizontal size={18}/></div>
       </div>
     </aside>
 
@@ -171,7 +171,7 @@ function App() {
     <main className="main-area">
       <header className="topbar">
         <div className="breadcrumb"><button className="mobile-menu icon-button" onClick={() => setSidebarOpen(true)} aria-label="Open menu"><Menu size={19}/></button><span>Workspace</span><span className="crumb-slash">/</span><strong>{view === 'overview' ? 'Overview' : view === 'history' ? 'Activity history' : activeGroup}</strong></div>
-        <div className="top-actions"><div className="system-status"><span className={'status-dot ' + (apiStatus === 'online' ? '' : apiStatus === 'checking' ? 'status-checking' : 'status-offline')}/>{apiStatus === 'online' ? 'API connected' : apiStatus === 'checking' ? 'Checking API' : 'API offline'}</div><button className="icon-button help-button" onClick={() => setToast('Help centre is coming soon')} aria-label="Help"><CircleHelp size={18}/></button><div className="top-avatar">C</div></div>
+        <div className="top-actions"><div className="system-status"><span className={'status-dot ' + (apiStatus === 'online' ? '' : apiStatus === 'checking' ? 'status-checking' : 'status-offline')}/>{apiStatus === 'online' ? 'API connected' : apiStatus === 'checking' ? 'Checking API' : 'API offline'}</div><button className="icon-button help-button" onClick={() => setToast('Help centre is coming soon')} aria-label="Help"><CircleHelp size={18}/></button><div className="top-avatar" aria-label="AllTools workspace">A</div></div>
       </header>
 
       <div className="content">
