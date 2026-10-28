@@ -20,7 +20,7 @@ This catalog tracks candidate upstream projects for a unified tool workspace. En
 
 | Project | Role | Integration approach | Important notes |
 |---|---|---|---|
-| [RAGFlow](https://github.com/infiniflow/ragflow) | RAG engine with document understanding and grounded answers | Separately deployed service and API adapter | Apache-2.0. Heavier dependencies; assess hardware, storage, and deployment requirements. |
+| [RAGFlow](https://github.com/infiniflow/ragflow) | RAG engine with document understanding and grounded answers | Server-side adapter implemented for dataset listing and chunk retrieval; RAGFlow remains a separately deployed service configured with `RAGFLOW_BASE_URL` and `RAGFLOW_API_KEY` | Apache-2.0. Heavier dependencies; assess hardware, storage, and deployment requirements. Live instance verification still requires credentials. |
 | [LlamaIndex](https://github.com/run-llama/llama_index) | Data connectors, indexing, retrieval, and query workflows | Backend package or isolated Python service | Verify specific package and dependency licenses before adopting. |
 | [Haystack](https://github.com/deepset-ai/haystack) | Composable retrieval and NLP pipelines | Backend pipeline adapter with evaluation tests | Verify version compatibility and package license before adopting. |
 | [memU](https://github.com/NevaMind-AI/memU) | Persistent agent memory | Memory-provider adapter with retention and deletion controls | Keep user memory separate from source documents and audit what is retained. |
@@ -50,7 +50,7 @@ Every integration should eventually expose a common server-side contract:
 ## Integration sequence
 
 1. Foundation: finish tool registry, backend API, authentication, database, secrets management, and execution audit trail.
-2. Low-risk first integrations: add Mocha to CI and implement a small RAG adapter behind a provider interface.
+2. RAG integration: connect the RAGFlow dataset/retrieval adapter to a configured instance, verify its live API response, then consider Mocha in CI.
 3. Automation: evaluate n8n versus Activepieces as a separately deployed workflow engine; do not embed both without a concrete need.
 4. OSINT: begin with passive public-source workflows (Sherlock/Subfinder) behind explicit authorization, scope limits, rate limiting, and provenance tracking.
 5. Heavier services: evaluate RAGFlow, SpiderFoot, and Amass only after worker isolation, resource limits, and deployment budgets are established.
