@@ -102,7 +102,7 @@ function App() {
     (activeGroup === 'All tools' || t.group === activeGroup) &&
     (t.name + ' ' + t.desc + ' ' + t.group + ' ' + t.tag).toLowerCase().includes(query.toLowerCase())
   ), [activeGroup, query]);
-  const readyCount = tools.filter(t => t.status === 'Ready').length;
+  const readyCount = tools.filter(t => t.status === 'Ready' || t.status === 'Connected').length;
 
   function launch(tool) {
     setActiveTool(tool);
