@@ -67,7 +67,9 @@ function recordRun(run) {
 }
 
 async function serveStatic(req, res, pathname) {
-  let requested = pathname === "/" ? "index.html" : decodeURIComponent(pathname).replace(/^\/+/, "");
+  let decodedPath;
+  try { decodedPath = decodeURIComponent(pathname); } catch { return json(res, 400, { error: "Invalid path encoding." }); }
+  let requested = decodedPath === "/" ? "index.html" : decodedPath.replace(/^\/+/, "");
   let target = path.resolve(distDir, requested);
   if (!target.startsWith(distDir + path.sep) && target !== distDir) return json(res, 400, { error: "Invalid path." });
   try {
