@@ -10,10 +10,11 @@ function configError() {
   return error;
 }
 
-function validateBaseUrl() {
-  if (!configured) throw configError();
+function validateBaseUrl(context = {}) {
+  const { baseUrl, apiKey } = getConfig(context);
+  if (!baseUrl || !apiKey) throw configError();
   let url;
-  try { url = new URL(BASE_URL); } catch {
+  try { url = new URL(baseUrl); } catch {
     const error = new Error("RAGFLOW_BASE_URL must be a valid HTTP(S) URL.");
     error.statusCode = 503;
     throw error;
@@ -23,18 +24,18 @@ function validateBaseUrl() {
     error.statusCode = 503;
     throw error;
   }
-  return url.origin;
+  return { origin: url.origin, apiKey };
 }
 
 async function requestRagFlow(path, options = {}, context = {}) {
-  const origin = validateBaseUrl();
+  const { origin, apiKey } = validateBaseUrl(context);
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), 12_000);
   try {
     const response = await (context.fetch ?? fetch)(new URL(path, origin), {
       ...options,
       headers: {
-        Authorization: `Bearer ${API_KEY}`,
+        Authorization: `Bearer ${apiKey}`,
         Accept: "application/json",
         ...(options.body ? { "Content-Type": "application/json" } : {}),
         ...options.headers,
