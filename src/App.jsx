@@ -20,9 +20,11 @@ const groups = [
 ];
 const tools = [
   { id:'assistant', name:'AI Assistant', desc:'A workspace shell for planning AI tasks; connect a model provider to enable generated answers.', group:'AI workspace', icon:Bot, tone:'lime', status:'Prototype', tag:'Provider connection needed', action:'Explore workspace' },
+  { id:'github-search', name:'GitHub Project Finder', desc:'Search public repositories for open-source tools, projects, and implementation references.', group:'Developer lab', icon:Github, tone:'lime', status:'Connected', tag:'GitHub REST API · live search', action:'Run search' },
+  { id:'rag', name:'RAG Knowledge Engine', desc:'Ground AI answers in indexed documents with retrieval, citations, and source-aware context.', group:'RAG studio', icon:Database, tone:'blue', status:'Needs setup', tag:'RAGFlow · dataset retrieval', action:'Configure connection' },
+  { id:'knowledge', name:'Knowledge Hub', desc:'Collect notes, organize research, and connect ideas into a personal knowledge base.', group:'Knowledge', icon:BookOpen, tone:'blue', status:'Prototype', tag:'Trilium concept', action:'Explore module' },
   { id:'memory', name:'Persistent Memory', desc:'Build a searchable memory layer for projects, preferences, notes, and agent context.', group:'AI workspace', icon:Fingerprint, tone:'violet', status:'Prototype', tag:'memU concept', action:'Explore module' },
   { id:'agents', name:'Agent Workbench', desc:'Organize tool-enabled assistants and reusable task workflows in one place.', group:'AI workspace', icon:Zap, tone:'orange', status:'Prototype', tag:'OpenJarvis concept', action:'Explore module' },
-  { id:'knowledge', name:'Knowledge Hub', desc:'Collect notes, organize research, and connect ideas into a personal knowledge base.', group:'Knowledge', icon:BookOpen, tone:'blue', status:'Prototype', tag:'Trilium concept', action:'Explore module' },
   { id:'research', name:'Research Desk', desc:'Keep research tasks, sources, and findings organized in a single workspace.', group:'Knowledge', icon:Compass, tone:'teal', status:'Planned', tag:'Research', action:'View roadmap' },
   { id:'video', name:'Video & Avatars', desc:'A future home for portrait animation, digital humans, and creative media workflows.', group:'Creative studio', icon:Video, tone:'pink', status:'Planned', tag:'PersonaLive concept', action:'View roadmap' },
   { id:'voice', name:'Voice Studio', desc:'A workspace for voice experiments, audio assets, and speech workflow integrations.', group:'Creative studio', icon:AudioWaveform, tone:'orange', status:'Planned', tag:'Media tools', action:'View roadmap' },
@@ -30,12 +32,10 @@ const tools = [
   { id:'testing', name:'Test Bench', desc:'Prepare and run JavaScript test suites as a dedicated developer workflow.', group:'Developer lab', icon:FlaskConical, tone:'lime', status:'Integration planned', tag:'Mocha integration', action:'View integration' },
   { id:'terminal', name:'Developer Console', desc:'A home for diagnostics, project utilities, logs, and future developer integrations.', group:'Developer lab', icon:Terminal, tone:'teal', status:'Planned', tag:'Developer tools', action:'View roadmap' },
   { id:'osint', name:'OSINT Research', desc:'Organize authorized open-source research with source notes and review checkpoints.', group:'Security lab', icon:Search, tone:'violet', status:'Planned', tag:'OpenOSINT · Sherlock · GHunt', action:'View safeguards' },
-  { id:'github-search', name:'GitHub Project Finder', desc:'Search public repositories for open-source tools, projects, and implementation references.', group:'Developer lab', icon:Github, tone:'lime', status:'Connected', tag:'GitHub REST API · live search', action:'Run search' },
   { id:'password', name:'Password Audit', desc:'Plan defensive password-strength reviews and approved security assessments.', group:'Security lab', icon:LockKeyhole, tone:'orange', status:'Planned', tag:'CUPP concept', action:'View safeguards' },
   { id:'network', name:'Network Privacy', desc:'A future space for privacy checks, network diagnostics, and configuration notes.', group:'Security lab', icon:ShieldCheck, tone:'blue', status:'Planned', tag:'IPGhost review', action:'View integration' },
   { id:'system', name:'System Monitor', desc:'Bring service health, integration status, and runtime diagnostics together.', group:'System tools', icon:Gauge, tone:'teal', status:'Planned', tag:'System health', action:'View roadmap' },
   { id:'documents', name:'Document Desk', desc:'A home for project briefs, reports, exports, and reusable templates.', group:'Knowledge', icon:FileText, tone:'pink', status:'Planned', tag:'Productivity', action:'View roadmap' },
-  { id:'rag', name:'RAG Knowledge Engine', desc:'Ground AI answers in indexed documents with retrieval, citations, and source-aware context.', group:'RAG studio', icon:Database, tone:'blue', status:'Needs setup', tag:'RAGFlow · dataset retrieval', action:'Configure connection' },
   { id:'ingestion', name:'Data Ingestion Pipeline', desc:'Prepare documents, web pages, and structured sources for search and retrieval workflows.', group:'RAG studio', icon:FileText, tone:'teal', status:'Planned', tag:'Document parsing', action:'View roadmap' },
   { id:'workflow', name:'Workflow Automation', desc:'Design trigger-action flows that connect APIs, apps, AI agents, and scheduled jobs.', group:'Automation hub', icon:Workflow, tone:'lime', status:'Integration planned', tag:'n8n · Activepieces', action:'View integration' },
   { id:'webcrawl', name:'Web Research & Crawl', desc:'Collect and normalize public web content for research and approved knowledge pipelines.', group:'Automation hub', icon:Globe, tone:'violet', status:'Planned', tag:'Crawling adapters', action:'View safeguards' },
@@ -49,7 +49,7 @@ function App() {
   const [activeTool, setActiveTool] = useState(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [toast, setToast] = useState('');
-  const [view, setView] = useState('tools');
+  const [view, setView] = useState('overview');
   const [apiStatus, setApiStatus] = useState('checking');
   const [githubQuery, setGithubQuery] = useState('RAGFlow OR LlamaIndex');
   const [githubResults, setGithubResults] = useState([]);
@@ -177,7 +177,7 @@ function App() {
     (activeGroup === 'All tools' || t.group === activeGroup) &&
     (t.name + ' ' + t.desc + ' ' + t.group + ' ' + t.tag).toLowerCase().includes(query.toLowerCase())
   ), [activeGroup, query]);
-  const readyCount = tools.filter(t => t.status === 'Ready' || t.status === 'Connected').length;
+  const readyCount = tools.filter(t => t.status === 'Ready' || t.status === 'Connected').length + (aiProviderStatus.configured ? 1 : 0);
 
   function launch(tool) {
     setActiveTool(tool);
