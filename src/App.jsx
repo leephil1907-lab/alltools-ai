@@ -56,6 +56,7 @@ function App() {
   const [githubTotal, setGithubTotal] = useState(0);
   const [githubLoading, setGithubLoading] = useState(false);
   const [githubError, setGithubError] = useState('');
+  const [runHistory, setRunHistory] = useState([]);
 
   useEffect(() => {
     let alive = true;
@@ -64,6 +65,15 @@ function App() {
       .catch(() => { if (alive) setApiStatus('offline'); });
     return () => { alive = false; };
   }, []);
+
+  useEffect(() => {
+    if (view !== 'history') return;
+    let alive = true;
+    fetch('/api/runs').then(r => { if (!r.ok) throw new Error('Could not load activity'); return r.json(); })
+      .then(data => { if (alive) setRunHistory(data.runs || []); })
+      .catch(() => { if (alive) setRunHistory([]); });
+    return () => { alive = false; };
+  }, [view]);
 
   async function runGitHubSearch(event) {
     event?.preventDefault();
@@ -78,6 +88,7 @@ function App() {
       if (!response.ok) throw new Error(data.error || 'Search failed.');
       setGithubResults(data.output.items || []);
       setGithubTotal(data.output.totalCount || 0);
+      setRunHistory(current => [data, ...current.filter(run => run.id !== data.id)].slice(0, 50));
       setToast('GitHub search completed');
     } catch (error) {
       setGithubError(error.message || 'Could not reach the AllTools API. Start the API server and try again.');
@@ -132,7 +143,7 @@ function App() {
       </header>
 
       <div className="content">
-        {view === 'history' ? <section className="empty-state"><div className="empty-icon"><History size={25}/></div><p className="eyebrow">WORKSPACE ACTIVITY</p><h1>Your activity, in one place.</h1><p>Activity history will appear here as tools become connected and begin recording real runs.</p><button className="primary-button" onClick={() => setView('tools')}>Browse tools <ArrowRight size={16}/></button></section> :
+        {view === 'history' ? <section className="activity-page"><div className="page-heading"><div><div className="eyebrow"><span className="eyebrow-line"/>WORKSPACE ACTIVITY</div><h1>Your activity, <span>in one place.</span></h1><p>Recent tool executions recorded by the API runtime.</p></div><button className="secondary-button" onClick={() => {setView('tools');setActiveGroup('All tools')}}>Browse tools <ArrowRight size={16}/></button></div>{runHistory.length ? <div className="activity-list">{runHistory.map(run=><article className="activity-item" key={run.id}><div className="activity-icon"><Github size={17}/></div><div className="activity-copy"><strong>{run.integrationId || 'Tool run'}</strong><span>{run.output?.query ? 'Query: '+run.output.query : 'Integration execution'}</span><small>{run.startedAt ? new Date(run.startedAt).toLocaleString() : 'Time unavailable'}</small></div><span className={'status-badge '+(run.status==='succeeded'?'ready':'planned')}>{run.status}</span></article>)}</div> : <div className="empty-state"><div className="empty-icon"><History size={25}/></div><h2>No runs recorded yet</h2><p>Run GitHub Project Finder once and completed searches will appear here.</p><button className="primary-button" onClick={() => {setView('tools');setActiveGroup('Developer lab')}}>Open GitHub Project Finder <ArrowRight size={16}/></button></div>}</section> :
         view === 'overview' ? <>
           <div className="page-heading"><div><div className="eyebrow"><span className="eyebrow-line"/>YOUR COMMAND CENTRE</div><h1>Good work starts <span>here.</span></h1><p>One workspace for the tools you use to think, create, build, and explore.</p></div><button className="secondary-button" onClick={() => {setView('tools');setActiveGroup('All tools')}}><Grid2X2 size={16}/> Browse all tools</button></div>
           <section className="welcome-banner"><div className="banner-orb orb-one"/><div className="banner-orb orb-two"/><div className="banner-content"><div className="banner-label"><Sparkles size={14}/> ALL YOUR WORKFLOWS, CONNECTED</div><h2>Less switching.<br/><span>More momentum.</span></h2><p>Your toolset is taking shape. Start with the core workspace and expand as integrations come online.</p><button className="banner-button" onClick={() => launch(tools[0])}>Open AI Assistant <ArrowRight size={16}/></button></div><div className="banner-graphic"><div className="graphic-ring ring-a"/><div className="graphic-ring ring-b"/><div className="graphic-center"><Command size={32}/></div><div className="float-chip chip-a"><Bot size={16}/></div><div className="float-chip chip-b"><BookOpen size={16}/></div><div className="float-chip chip-c"><Terminal size={16}/></div><div className="float-chip chip-d"><WandSparkles size={16}/></div></div></section>
