@@ -13,6 +13,8 @@ This catalog tracks candidate upstream projects for a unified tool workspace. En
 | [Amass](https://github.com/owasp-amass/amass) | Domain and asset discovery | Isolated worker with allowlisted target scope and job limits | Prefer passive mode by default; make active probes opt-in. |
 | [Subfinder](https://github.com/projectdiscovery/subfinder) | Passive subdomain enumeration | Lightweight worker adapter | Review current license and use only approved domains. |
 | [Recon-ng](https://github.com/lanmaster53/recon-ng) | Modular OSINT framework | Sandboxed execution service, not browser-side commands | GPL-3.0; review license obligations and module/provider requirements. |
+| [OpenOSINT](https://github.com/OpenOSINT/OpenOSINT) | AI-assisted OSINT agent, CLI, and MCP server | Evaluate as an adapter provider; integrate its capabilities through a constrained server-side interface | MIT. Inspect dependencies, model-provider setup, and tool permissions before enabling. |
+| [Argus OS](https://github.com/AXRoux/argus-os) | OSINT orchestration UI and pluggable adapters | Reference architecture candidate; assess maturity before adopting code | Early-stage repository; verify license and security posture directly before reuse. |
 
 ## RAG and knowledge systems
 
