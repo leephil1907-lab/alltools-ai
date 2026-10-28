@@ -139,14 +139,14 @@ export const ragflowKnowledge = defineIntegration({
           highlight: true,
         }),
       }, context);
-      const data = Array.isArray(body?.data) ? body.data : [];
+      const data = Array.isArray(body?.data?.chunks) ? body.data.chunks : Array.isArray(body?.data) ? body.data : [];
       return {
         action,
         question,
         results: data.map((item, index) => ({
           id: item.id ?? item.chunk_id ?? `chunk-${index + 1}`,
           content: item.content ?? item.chunk_content ?? "",
-          documentName: item.document_name ?? item.doc_name ?? "Source document",
+          documentName: item.document_name ?? item.document_keyword ?? item.doc_name ?? "Source document",
           documentId: item.document_id ?? null,
           datasetId: item.dataset_id ?? null,
           similarity: typeof item.similarity === "number" ? item.similarity : typeof item.similarity_score === "number" ? item.similarity_score : null,
