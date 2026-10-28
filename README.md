@@ -23,25 +23,34 @@ Requirements: Node.js 20+ recommended.
 
 ```bash
 npm install
+npm run dev:api
+```
+
+In a second terminal, start the Vite frontend:
+
+```bash
 npm run dev
 ```
+
+The frontend proxies `/api` requests to the API server on port `8787`.
 
 For a production build:
 
 ```bash
+npm test
 npm run build
-npm run preview
+npm start
 ```
 
-The initial dashboard uses local UI state and does not require API keys. Provider-backed AI, persistence, authentication, execution workers, and upstream integrations are not configured yet.
+`npm start` serves the built frontend and API together on `PORT` (defaults to `8787`).
+
+The dashboard now has a Node.js HTTP API, a shared integration contract, input validation, a bounded in-memory run history, request-size and rate limits, health/registry endpoints, and a live GitHub public-repository search adapter. The first adapter requires no API key. Run history is process-memory only and resets on restart; user accounts, durable storage, provider-backed AI, and isolated execution workers are not implemented yet.
 
 ## Planned architecture
 
 - `apps/web`: React dashboard and user experience.
-- `services/api`: authenticated API and tool registry.
-- `services/workers`: isolated jobs for compatible upstream tools.
-- `packages/tool-sdk`: shared module contracts, status, permissions, and audit events.
-- `integrations/`: separately licensed and version-pinned adapters.
+- `server/`: API server, shared tool contract, integration registry, and tests.
+- `server/integrations/`: separately reviewed adapters. The GitHub public repository search is the first live adapter.
 - `docs/`: architecture decisions, threat model, setup, and integration guides.
 
 ## Integration principles
@@ -52,6 +61,8 @@ The initial dashboard uses local UI state and does not require API keys. Provide
 4. Require authentication and explicit approval for sensitive actions.
 5. Run security utilities only for systems and accounts the user is authorized to assess.
 6. Add tests and CI checks before enabling production integrations.
+7. Use `GET /api/health`, `GET /api/integrations`, `GET /api/tools`, and `GET /api/runs` to inspect the runtime.
+8. Execute an adapter with `POST /api/integrations/github-search/run` and JSON body `{"query":"RAGFlow"}`. Results are public repository metadata and link back to GitHub.
 
 ## Integration discovery catalog
 
