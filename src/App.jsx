@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import {
   Activity, ArrowDownRight, ArrowRight, ArrowUpRight, AudioWaveform, BookOpen,
   Bot, Check, ChevronDown, CircleHelp, Command, Compass, Cpu, ExternalLink,
@@ -30,6 +30,7 @@ const tools = [
   { id:'testing', name:'Test Bench', desc:'Prepare and run JavaScript test suites as a dedicated developer workflow.', group:'Developer lab', icon:FlaskConical, tone:'lime', status:'Integration planned', tag:'Mocha integration', action:'View integration' },
   { id:'terminal', name:'Developer Console', desc:'A home for diagnostics, project utilities, logs, and future developer integrations.', group:'Developer lab', icon:Terminal, tone:'teal', status:'Planned', tag:'Developer tools', action:'View roadmap' },
   { id:'osint', name:'OSINT Research', desc:'Organize authorized open-source research with source notes and review checkpoints.', group:'Security lab', icon:Search, tone:'violet', status:'Planned', tag:'OpenOSINT · Sherlock · GHunt', action:'View safeguards' },
+  { id:'github-search', name:'GitHub Project Finder', desc:'Search public repositories for open-source tools, projects, and implementation references.', group:'Developer lab', icon:Github, tone:'lime', status:'Connected', tag:'GitHub REST API · live search', action:'Run search' },
   { id:'password', name:'Password Audit', desc:'Plan defensive password-strength reviews and approved security assessments.', group:'Security lab', icon:LockKeyhole, tone:'orange', status:'Planned', tag:'CUPP concept', action:'View safeguards' },
   { id:'network', name:'Network Privacy', desc:'A future space for privacy checks, network diagnostics, and configuration notes.', group:'Security lab', icon:ShieldCheck, tone:'blue', status:'Planned', tag:'IPGhost review', action:'View integration' },
   { id:'system', name:'System Monitor', desc:'Bring service health, integration status, and runtime diagnostics together.', group:'System tools', icon:Gauge, tone:'teal', status:'Planned', tag:'System health', action:'View roadmap' },
@@ -40,7 +41,7 @@ const tools = [
   { id:'webcrawl', name:'Web Research & Crawl', desc:'Collect and normalize public web content for research and approved knowledge pipelines.', group:'Automation hub', icon:Globe, tone:'violet', status:'Planned', tag:'Crawling adapters', action:'View safeguards' },
   { id:'orchestration', name:'Task Orchestration', desc:'Coordinate background tasks, retries, execution status, and run history across tools.', group:'Automation hub', icon:GitBranch, tone:'orange', status:'Planned', tag:'Worker orchestration', action:'View roadmap' },
 ];
-const statusTone = s => s === 'Ready' ? 'ready' : s === 'Prototype' ? 'prototype' : 'planned';
+const statusTone = s => s === 'Ready' || s === 'Connected' ? 'ready' : s === 'Prototype' ? 'prototype' : 'planned';
 
 function App() {
   const [activeGroup, setActiveGroup] = useState('All tools');
@@ -49,6 +50,42 @@ function App() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [toast, setToast] = useState('');
   const [view, setView] = useState('tools');
+  const [apiStatus, setApiStatus] = useState('checking');
+  const [githubQuery, setGithubQuery] = useState('RAGFlow OR LlamaIndex');
+  const [githubResults, setGithubResults] = useState([]);
+  const [githubTotal, setGithubTotal] = useState(0);
+  const [githubLoading, setGithubLoading] = useState(false);
+  const [githubError, setGithubError] = useState('');
+
+  useEffect(() => {
+    let alive = true;
+    fetch('/api/health').then(r => { if (!r.ok) throw new Error('API unavailable'); return r.json(); })
+      .then(() => { if (alive) setApiStatus('online'); })
+      .catch(() => { if (alive) setApiStatus('offline'); });
+    return () => { alive = false; };
+  }, []);
+
+  async function runGitHubSearch(event) {
+    event?.preventDefault();
+    setGithubLoading(true);
+    setGithubError('');
+    try {
+      const response = await fetch('/api/integrations/github-search/run', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ query: githubQuery }),
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || 'Search failed.');
+      setGithubResults(data.output.items || []);
+      setGithubTotal(data.output.totalCount || 0);
+      setToast('GitHub search completed');
+    } catch (error) {
+      setGithubError(error.message || 'Could not reach the AllTools API. Start the API server and try again.');
+      setGithubResults([]);
+    } finally {
+      setGithubLoading(false);
+    }
+  }
 
   const filtered = useMemo(() => tools.filter(t =>
     (activeGroup === 'All tools' || t.group === activeGroup) &&
@@ -91,7 +128,7 @@ function App() {
     <main className="main-area">
       <header className="topbar">
         <div className="breadcrumb"><button className="mobile-menu icon-button" onClick={() => setSidebarOpen(true)} aria-label="Open menu"><Menu size={19}/></button><span>Workspace</span><span className="crumb-slash">/</span><strong>{view === 'overview' ? 'Overview' : view === 'history' ? 'Activity history' : activeGroup}</strong></div>
-        <div className="top-actions"><div className="system-status"><span className="status-dot"/>Workspace online</div><button className="icon-button help-button" onClick={() => setToast('Help centre is coming soon')} aria-label="Help"><CircleHelp size={18}/></button><div className="top-avatar">C</div></div>
+        <div className="top-actions"><div className="system-status"><span className={'status-dot ' + (apiStatus === 'online' ? '' : apiStatus === 'checking' ? 'status-checking' : 'status-offline')}/>{apiStatus === 'online' ? 'API connected' : apiStatus === 'checking' ? 'Checking API' : 'API offline'}</div><button className="icon-button help-button" onClick={() => setToast('Help centre is coming soon')} aria-label="Help"><CircleHelp size={18}/></button><div className="top-avatar">C</div></div>
       </header>
 
       <div className="content">
@@ -113,12 +150,12 @@ function App() {
         <footer className="footer"><span>© 2026 AllTools AI</span><span><span className="footer-dot"/> Built to grow with your workflow</span><a href="https://github.com/leephil1907-lab/alltools-ai" target="_blank" rel="noreferrer"><Github size={14}/> Repository <ExternalLink size={12}/></a></footer>
       </div>
     </main>
-    {activeTool && <div className="modal-backdrop" onClick={()=>setActiveTool(null)}><section className="tool-modal" onClick={e=>e.stopPropagation()}><button className="modal-close icon-button" onClick={()=>setActiveTool(null)} aria-label="Close"><X size={18}/></button><div className={'tool-icon large '+activeTool.tone}><activeTool.icon size={25}/></div><span className={'status-badge '+statusTone(activeTool.status)}>{activeTool.status}</span><h2>{activeTool.name}</h2><p>{activeTool.desc}</p>{activeTool.status==='Ready'?<div className="modal-ready"><div className="ready-indicator"><span className="status-dot"/> Available in this prototype</div><p>The unified workspace shell is active. Provider-backed AI execution and saved history still need to be configured.</p><button className="primary-button" onClick={()=>{setActiveTool(null);setToast('AI provider connection is not configured yet')}}>Continue <ArrowRight size={16}/></button></div>:<div className="modal-roadmap"><div className="roadmap-row"><span className="roadmap-check"><Check size={13}/></span><div><strong>Workspace module defined</strong><small>Included in the unified navigation</small></div></div><div className="roadmap-row"><span className="roadmap-pending"/><div><strong>Implementation and integration</strong><small>Requires code, dependency, and license review</small></div></div><button className="secondary-button full-button" onClick={()=>{setActiveTool(null);setToast('Roadmap request noted for this session')}}>Add to my focus list <ArrowUpRight size={15}/></button></div>}</section></div>}
+    {activeTool && <div className="modal-backdrop" onClick={()=>setActiveTool(null)}><section className="tool-modal" onClick={e=>e.stopPropagation()}><button className="modal-close icon-button" onClick={()=>setActiveTool(null)} aria-label="Close"><X size={18}/></button><div className={'tool-icon large '+activeTool.tone}><activeTool.icon size={25}/></div><span className={'status-badge '+statusTone(activeTool.status)}>{activeTool.status}</span><h2>{activeTool.name}</h2><p>{activeTool.desc}</p>{activeTool.id==='github-search'?<div className="github-search-panel"><div className="ready-indicator"><span className={'status-dot '+(apiStatus==='online'?'':'status-offline')}/>{apiStatus==='online'?'Live GitHub API connection':'API server required'}</div><form onSubmit={runGitHubSearch} className="github-search-form"><label htmlFor="github-query">Find public repositories</label><input id="github-query" value={githubQuery} onChange={e=>setGithubQuery(e.target.value)} placeholder="e.g. RAGFlow, OSINT, automation" maxLength={120}/><button className="primary-button" type="submit" disabled={githubLoading || apiStatus!=='online'}>{githubLoading?'Searching…':'Search GitHub'} <ArrowRight size={16}/></button></form>{githubError&&<p className="integration-error" role="alert">{githubError}</p>}{githubResults.length>0&&<div className="github-results"><div className="results-line"><strong>{githubTotal.toLocaleString()} public repositories</strong><span>Showing {githubResults.length}</span></div>{githubResults.map(repo=><article className="github-result" key={repo.id}><div><a href={repo.url} target="_blank" rel="noreferrer">{repo.name} <ExternalLink size={12}/></a><p>{repo.description||'No description provided.'}</p><small>{repo.language} · ★ {repo.stars.toLocaleString()} · Updated {repo.updatedAt?new Date(repo.updatedAt).toLocaleDateString():'unknown'}</small></div></article>)}</div>}{apiStatus!=='online'&&<p className="integration-note">Start the backend with <code>npm run dev:api</code> in a second terminal, then refresh this page.</p>}</div>:activeTool.status==='Ready'?<div className="modal-ready"><div className="ready-indicator"><span className="status-dot"/> Available in this prototype</div><p>The unified workspace shell is active. Provider-backed AI execution and saved history still need to be configured.</p><button className="primary-button" onClick={()=>{setActiveTool(null);setToast('AI provider connection is not configured yet')}}>Continue <ArrowRight size={16}/></button></div>:<div className="modal-roadmap"><div className="roadmap-row"><span className="roadmap-check"><Check size={13}/></span><div><strong>Workspace module defined</strong><small>Included in the unified navigation</small></div></div><div className="roadmap-row"><span className="roadmap-pending"/><div><strong>Implementation and integration</strong><small>Requires code, dependency, and license review</small></div></div><button className="secondary-button full-button" onClick={()=>{setActiveTool(null);setToast('Roadmap request noted for this session')}}>Add to my focus list <ArrowUpRight size={15}/></button></div>}</section></div>}
     {toast && <div className="toast"><Check size={16}/>{toast}</div>}
   </div>;
 }
 
 function ToolCard({tool,onLaunch}) {
-  return <article className="tool-card"><div className="tool-card-top"><div className={'tool-icon '+tool.tone}><tool.icon size={20}/></div><span className={'status-badge '+statusTone(tool.status)}><i/>{tool.status}</span></div><div className="tool-card-copy"><div className="tool-title-row"><h3>{tool.name}</h3><button className="card-arrow" onClick={()=>onLaunch(tool)} aria-label={'Open '+tool.name}><ArrowUpRight size={17}/></button></div><p>{tool.desc}</p></div><div className="tool-card-bottom"><span className="tool-tag">{tool.tag}</span><button className="launch-link" onClick={()=>onLaunch(tool)}>{tool.status==='Ready'?'Open tool':tool.status==='Planned'?'Explore': 'View details'} <ArrowRight size={14}/></button></div></article>;
+  return <article className="tool-card"><div className="tool-card-top"><div className={'tool-icon '+tool.tone}><tool.icon size={20}/></div><span className={'status-badge '+statusTone(tool.status)}><i/>{tool.status}</span></div><div className="tool-card-copy"><div className="tool-title-row"><h3>{tool.name}</h3><button className="card-arrow" onClick={()=>onLaunch(tool)} aria-label={'Open '+tool.name}><ArrowUpRight size={17}/></button></div><p>{tool.desc}</p></div><div className="tool-card-bottom"><span className="tool-tag">{tool.tag}</span><button className="launch-link" onClick={()=>onLaunch(tool)}>{tool.status==='Ready'?'Open tool':tool.status==='Connected'?'Run search':tool.status==='Planned'?'Explore': 'View details'} <ArrowRight size={14}/></button></div></article>;
 }
 export default App;
