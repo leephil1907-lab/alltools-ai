@@ -102,7 +102,7 @@ test("RAGFlow retrieval validates dataset IDs and maps source chunks", async () 
       const body = JSON.parse(options.body);
       assert.deepEqual(body.dataset_ids, ["ds-1"]);
       assert.equal(body.question, "How does this work?");
-      return { ok: true, json: async () => ({ code: 0, data: [{ id: "chunk-1", content: "Grounded source passage", document_name: "guide.pdf", similarity: 0.91 }] }) };
+      return { ok: true, json: async () => ({ code: 0, data: { chunks: [{ id: "chunk-1", content: "Grounded source passage", document_keyword: "guide.pdf", similarity: 0.91 }] } }) };
     },
   });
   assert.equal(run.output.results[0].content, "Grounded source passage");
