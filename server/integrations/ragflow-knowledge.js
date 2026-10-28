@@ -1,7 +1,7 @@
 import { defineIntegration } from "../tool-contract.js";
 
 function getConfig(context = {}) {
-  const baseUrl = (context.env?.RAGFLOW_BASE_URL ?? process.env.RAGFLOW_BASE_URL ?? "").trim().replace(/\\/+$/, "");
+  const baseUrl = (context.env?.RAGFLOW_BASE_URL ?? process.env.RAGFLOW_BASE_URL ?? "").trim().replace(/\/+$/, "");
   const apiKey = (context.env?.RAGFLOW_API_KEY ?? process.env.RAGFLOW_API_KEY ?? "").trim();
   return { baseUrl, apiKey };
 }
