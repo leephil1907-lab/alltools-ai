@@ -4,7 +4,7 @@ import {
   Bot, Check, ChevronDown, CircleHelp, Command, Compass, Cpu, ExternalLink,
   FileText, Fingerprint, FlaskConical, Gauge, Github, Grid2X2, History, LayoutDashboard,
   LockKeyhole, Menu, MessageSquareText, Monitor, MoreHorizontal, Search, Settings2,
-  ShieldCheck, Sparkles, Terminal, Video, WandSparkles, X, Zap
+  ShieldCheck, Sparkles, Terminal, Video, WandSparkles, X, Zap, Workflow, Database, Globe, GitBranch
 } from 'lucide-react';
 
 const groups = [
@@ -15,6 +15,8 @@ const groups = [
   { name: 'Developer lab', icon: Terminal },
   { name: 'Security lab', icon: ShieldCheck },
   { name: 'System tools', icon: Cpu },
+  { name: 'RAG studio', icon: Database },
+  { name: 'Automation hub', icon: Workflow },
 ];
 const tools = [
   { id:'assistant', name:'AI Assistant', desc:'Think through ideas, write, plan, and solve tasks with an adaptable AI workspace.', group:'AI workspace', icon:Bot, tone:'lime', status:'Ready', tag:'Core workspace', action:'Open workspace' },
@@ -32,6 +34,11 @@ const tools = [
   { id:'network', name:'Network Privacy', desc:'A future space for privacy checks, network diagnostics, and configuration notes.', group:'Security lab', icon:ShieldCheck, tone:'blue', status:'Planned', tag:'IPGhost review', action:'View integration' },
   { id:'system', name:'System Monitor', desc:'Bring service health, integration status, and runtime diagnostics together.', group:'System tools', icon:Gauge, tone:'teal', status:'Planned', tag:'System health', action:'View roadmap' },
   { id:'documents', name:'Document Desk', desc:'A home for project briefs, reports, exports, and reusable templates.', group:'Knowledge', icon:FileText, tone:'pink', status:'Planned', tag:'Productivity', action:'View roadmap' },
+  { id:'rag', name:'RAG Knowledge Engine', desc:'Ground AI answers in indexed documents with retrieval, citations, and source-aware context.', group:'RAG studio', icon:Database, tone:'blue', status:'Integration planned', tag:'RAGFlow · LlamaIndex · Haystack', action:'View integration' },
+  { id:'ingestion', name:'Data Ingestion Pipeline', desc:'Prepare documents, web pages, and structured sources for search and retrieval workflows.', group:'RAG studio', icon:FileText, tone:'teal', status:'Planned', tag:'Document parsing', action:'View roadmap' },
+  { id:'workflow', name:'Workflow Automation', desc:'Design trigger-action flows that connect APIs, apps, AI agents, and scheduled jobs.', group:'Automation hub', icon:Workflow, tone:'lime', status:'Integration planned', tag:'n8n · Activepieces', action:'View integration' },
+  { id:'webcrawl', name:'Web Research & Crawl', desc:'Collect and normalize public web content for research and approved knowledge pipelines.', group:'Automation hub', icon:Globe, tone:'violet', status:'Planned', tag:'Crawling adapters', action:'View safeguards' },
+  { id:'orchestration', name:'Task Orchestration', desc:'Coordinate background tasks, retries, execution status, and run history across tools.', group:'Automation hub', icon:GitBranch, tone:'orange', status:'Planned', tag:'Worker orchestration', action:'View roadmap' },
 ];
 const statusTone = s => s === 'Ready' ? 'ready' : s === 'Prototype' ? 'prototype' : 'planned';
 
