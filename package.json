@@ -18,5 +18,8 @@
     "react-dom": "18.3.1",
     "vite": "5.4.14"
   },
-  "devDependencies": {}
+  "devDependencies": {},
+  "engines": {
+    "node": ">=20 <23"
+  }
 }
