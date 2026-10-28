@@ -14,6 +14,8 @@ This repository starts with a responsive React/Vite dashboard and an extensible 
 - **Developer lab:** JavaScript testing and developer utilities.
 - **Security lab:** authorized OSINT research, defensive password audits, and network-privacy diagnostics.
 - **System tools:** service status and diagnostics.
+- **RAG studio:** document ingestion and retrieval-grounded AI knowledge workflows.
+- **Automation hub:** workflow orchestration, web research, and background jobs.
 
 ## Run locally
 
@@ -50,6 +52,10 @@ The initial dashboard uses local UI state and does not require API keys. Provide
 4. Require authentication and explicit approval for sensitive actions.
 5. Run security utilities only for systems and accounts the user is authorized to assess.
 6. Add tests and CI checks before enabling production integrations.
+
+## Integration discovery catalog
+
+See [docs/INTEGRATION_CATALOG.md](docs/INTEGRATION_CATALOG.md) for additional OSINT, RAG, and automation repositories, integration approaches, license notes, and a phased plan.
 
 ## Upstream projects under evaluation
 
