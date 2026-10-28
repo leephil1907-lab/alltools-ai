@@ -33,3 +33,22 @@
 .activity-copy span { color: var(--muted, #a2a79c); font-size: 12px; overflow-wrap: anywhere; }
 .activity-copy small { color: var(--muted, #a2a79c); font-size: 10px; }
 @media (max-width: 560px) { .activity-item { align-items: flex-start; gap: 10px; padding: 12px; } .activity-item > .status-badge { margin-left: auto; flex: 0 0 auto; } }
+
+
+/* RAGFlow knowledge workspace */
+.ragflow-panel { margin-top: 20px; }
+.ragflow-panel textarea { width: 100%; resize: vertical; min-height: 84px; border: 1px solid var(--border, rgba(255,255,255,.12)); border-radius: 10px; background: var(--surface, rgba(255,255,255,.04)); color: inherit; padding: 11px 12px; font: inherit; line-height: 1.5; outline: none; }
+.ragflow-panel textarea:focus { border-color: #c5e86c; box-shadow: 0 0 0 3px rgba(197,232,108,.12); }
+.ragflow-datasets { display: grid; gap: 8px; margin: 16px 0; }
+.ragflow-datasets > strong { font-size: 13px; }
+.ragflow-dataset { display: flex; align-items: center; justify-content: space-between; gap: 12px; width: 100%; text-align: left; border: 1px solid var(--border, rgba(255,255,255,.1)); border-radius: 10px; padding: 11px; background: rgba(255,255,255,.025); color: inherit; cursor: pointer; }
+.ragflow-dataset:hover { border-color: rgba(197,232,108,.5); }
+.ragflow-dataset > span:first-child { min-width: 0; display: grid; gap: 4px; }
+.ragflow-dataset b { font-size: 12px; overflow-wrap: anywhere; }
+.ragflow-dataset small,.ragflow-dataset > span:last-child { font-size: 10px; color: var(--muted, #a2a79c); overflow-wrap: anywhere; }
+.ragflow-result { margin-top: 9px; padding: 12px; border: 1px solid var(--border, rgba(255,255,255,.1)); border-radius: 10px; background: rgba(255,255,255,.025); }
+.ragflow-result-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
+.ragflow-result-top strong { font-size: 12px; overflow-wrap: anywhere; }
+.ragflow-result-top small { flex: 0 0 auto; color: #c5e86c; font-size: 10px; }
+.ragflow-result p { color: var(--muted, #a2a79c); font-size: 12px; line-height: 1.6; white-space: pre-wrap; overflow-wrap: anywhere; margin: 8px 0; }
+.ragflow-result > small { color: var(--muted, #a2a79c); font-size: 10px; overflow-wrap: anywhere; }
