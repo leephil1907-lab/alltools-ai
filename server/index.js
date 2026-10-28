@@ -1,4 +1,5 @@
 import http from "node:http";
+import { randomUUID } from "node:crypto";
 import { readFile, stat } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -117,7 +118,7 @@ export function createServer() {
       try {
         const input = await readJson(req);
         const result = await integration.run(input);
-        const run = { id: crypto.randomUUID(), ...result };
+        const run = { id: randomUUID(), ...result };
         recordRun(run);
         return json(res, 200, run);
       } catch (error) {
