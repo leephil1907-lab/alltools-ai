@@ -131,7 +131,7 @@ export function createServer() {
         if (message.length > 6000) return json(res, 413, { error: "Message is too long. Keep it under 6,000 characters." });
         const apiKey = process.env.AI_API_KEY;
         if (!apiKey) return json(res, 503, { error: "AI provider is not configured yet. Add AI_API_KEY in the Render environment, then restart the service." });
-        const baseUrl = (process.env.AI_BASE_URL || "https://api.openai.com/v1").replace(/\\/+$/, "");
+        const baseUrl = (process.env.AI_BASE_URL || "https://api.openai.com/v1").replace(/\/+$/, "");
         const model = process.env.AI_MODEL || "gpt-4o-mini";
         const providerResponse = await fetch(`${baseUrl}/chat/completions`, {
           method: "POST",
