@@ -44,7 +44,7 @@ npm start
 
 `npm start` serves the built frontend and API together on `PORT` (defaults to `8787`).
 
-The dashboard now has a Node.js HTTP API, a shared integration contract, input validation, a bounded in-memory run history, request-size and rate limits, health/registry endpoints, and a live GitHub public-repository search adapter. The first adapter requires no API key. Run history is process-memory only and resets on restart; user accounts, durable storage, provider-backed AI, and isolated execution workers are not implemented yet.
+The dashboard has a Node.js HTTP API, a shared integration contract, input validation, bounded in-memory run history, request-size and rate limits, health/registry endpoints, a live GitHub public-repository search adapter, and a RAGFlow knowledge adapter. Run history is process-memory only and resets on restart; user accounts, durable storage, provider-backed general AI, and isolated execution workers are not implemented yet.
 
 ## Planned architecture
 
@@ -63,6 +63,8 @@ The dashboard now has a Node.js HTTP API, a shared integration contract, input v
 6. Add tests and CI checks before enabling production integrations.
 7. Use `GET /api/health`, `GET /api/integrations`, `GET /api/tools`, and `GET /api/runs` to inspect the runtime.
 8. Execute an adapter with `POST /api/integrations/github-search/run` and JSON body `{"query":"RAGFlow"}`. Results are public repository metadata and link back to GitHub.
+9. Configure RAGFlow on the server with `RAGFLOW_BASE_URL` (your instance URL, without a path suffix) and `RAGFLOW_API_KEY`. Never put the key in frontend variables or commit it. See `.env.example` for the variable names.
+10. Call `POST /api/integrations/ragflow-knowledge/run` with `{"action":"datasets"}` to list datasets, or `{"action":"retrieve","question":"What does the documentation say?","datasetIds":["YOUR_DATASET_ID"]}` to retrieve relevant passages. The API key is sent only from the backend to RAGFlow. A reachable RAGFlow instance and at least one indexed dataset are required for real results.
 
 ## Integration discovery catalog
 
