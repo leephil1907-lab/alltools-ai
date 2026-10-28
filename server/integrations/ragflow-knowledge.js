@@ -1,8 +1,11 @@
 import { defineIntegration } from "../tool-contract.js";
 
-const BASE_URL = (process.env.RAGFLOW_BASE_URL || "").trim().replace(/\/+$/, "");
-const API_KEY = (process.env.RAGFLOW_API_KEY || "").trim();
-const configured = Boolean(BASE_URL && API_KEY);
+function getConfig(context = {}) {
+  const baseUrl = (context.env?.RAGFLOW_BASE_URL ?? process.env.RAGFLOW_BASE_URL ?? "").trim().replace(/\\/+$/, "");
+  const apiKey = (context.env?.RAGFLOW_API_KEY ?? process.env.RAGFLOW_API_KEY ?? "").trim();
+  return { baseUrl, apiKey };
+}
+const configured = Boolean(getConfig().baseUrl && getConfig().apiKey);
 
 function configError() {
   const error = new Error("RAGFlow is not configured. Set RAGFLOW_BASE_URL and RAGFLOW_API_KEY on the server, then restart it.");
