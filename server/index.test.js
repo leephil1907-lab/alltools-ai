@@ -47,3 +47,29 @@ test("unknown integration returns a controlled 404", async t => {
   });
   assert.equal(response.status, 404);
 });
+
+
+test("GitHub adapter maps public repository results through the shared contract", async () => {
+  const { githubSearch } = await import("./integrations/github-search.js");
+  const run = await githubSearch.run({ query: "ragflow" }, {
+    fetch: async (url, options) => {
+      assert.match(String(url), /api\.github\.com\/search\/repositories/);
+      assert.equal(options.headers["X-GitHub-Api-Version"], "2022-11-28");
+      return {
+        ok: true,
+        json: async () => ({
+          total_count: 1,
+          items: [{
+            id: 42, full_name: "example/ragflow", description: "RAG project",
+            html_url: "https://github.com/example/ragflow", language: "Python",
+            stargazers_count: 123, updated_at: "2026-10-01T00:00:00Z",
+          }],
+        }),
+      };
+    },
+  });
+  assert.equal(run.status, "succeeded");
+  assert.equal(run.output.totalCount, 1);
+  assert.equal(run.output.items[0].name, "example/ragflow");
+  assert.equal(run.output.items[0].stars, 123);
+});
