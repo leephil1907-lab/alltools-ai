@@ -113,6 +113,55 @@ export function createServer() {
       return json(res, 200, { runs: runHistory });
     }
 
+    if (req.method === "GET" && pathname === "/api/ai/status") {
+      const configured = Boolean(process.env.AI_API_KEY);
+      return json(res, 200, {
+        configured,
+        provider: configured ? (process.env.AI_PROVIDER || "openai-compatible") : null,
+        model: configured ? (process.env.AI_MODEL || "gpt-4o-mini") : null,
+        message: configured ? "AI provider credentials are configured." : "Add AI_API_KEY in the Render environment to enable live AI responses."
+      });
+    }
+
+    if (req.method === "POST" && pathname === "/api/ai/chat") {
+      try {
+        const input = await readJson(req);
+        const message = typeof input.message === "string" ? input.message.trim() : "";
+        if (!message) return json(res, 400, { error: "Enter a message to continue." });
+        if (message.length > 6000) return json(res, 413, { error: "Message is too long. Keep it under 6,000 characters." });
+        const apiKey = process.env.AI_API_KEY;
+        if (!apiKey) return json(res, 503, { error: "AI provider is not configured yet. Add AI_API_KEY in the Render environment, then restart the service." });
+        const baseUrl = (process.env.AI_BASE_URL || "https://api.openai.com/v1").replace(/\\/+$/, "");
+        const model = process.env.AI_MODEL || "gpt-4o-mini";
+        const providerResponse = await fetch(`${baseUrl}/chat/completions`, {
+          method: "POST",
+          headers: { "Authorization": `Bearer ${apiKey}`, "Content-Type": "application/json" },
+          body: JSON.stringify({
+            model,
+            messages: [
+              { role: "system", content: "You are AllTools AI, a helpful, precise assistant inside a multi-tool workspace. Be honest about limitations, do not claim to run tools unless a tool result is provided, and give actionable answers." },
+              ...(Array.isArray(input.history) ? input.history.slice(-10).filter(item => item && ["user", "assistant"].includes(item.role) && typeof item.content === "string").map(item => ({ role: item.role, content: item.content.slice(0, 6000) })) : []),
+              { role: "user", content: message }
+            ],
+            temperature: 0.4
+          }),
+          signal: AbortSignal.timeout(45000)
+        });
+        const data = await providerResponse.json().catch(() => ({}));
+        if (!providerResponse.ok) {
+          const status = providerResponse.status === 401 || providerResponse.status === 403 ? 502 : providerResponse.status === 429 ? 429 : 502;
+          return json(res, status, { error: data.error?.message || "The AI provider request failed. Check the provider settings and try again." });
+        }
+        const answer = data.choices?.[0]?.message?.content;
+        if (typeof answer !== "string" || !answer.trim()) return json(res, 502, { error: "The AI provider returned an empty response." });
+        const run = { id: randomUUID(), integrationId: "ai-assistant", status: "succeeded", startedAt: new Date().toISOString(), output: { model, answer: answer.trim() } };
+        recordRun(run);
+        return json(res, 200, { answer: answer.trim(), model, runId: run.id });
+      } catch (error) {
+        return json(res, error.name === "TimeoutError" ? 504 : (error.statusCode ?? 502), { error: error.name === "TimeoutError" ? "The AI provider took too long to respond. Please retry." : (error.message || "AI request failed.") });
+      }
+    }
+
     const match = pathname.match(/^\/api\/integrations\/([a-z0-9-]+)\/run$/);
     if (req.method === "POST" && match) {
       const integration = integrationMap.get(match[1]);
