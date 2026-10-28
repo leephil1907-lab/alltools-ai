@@ -1,6 +1,7 @@
 import { githubSearch } from "./github-search.js";
+import { ragflowKnowledge } from "./ragflow-knowledge.js";
 
-export const integrations = [githubSearch];
+export const integrations = [githubSearch, ragflowKnowledge];
 export const integrationMap = new Map(integrations.map(integration => [integration.id, integration]));
 
 export function publicIntegration(integration) {
