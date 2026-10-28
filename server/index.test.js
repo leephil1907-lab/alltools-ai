@@ -114,3 +114,29 @@ test("RAGFlow adapter fails clearly when server credentials are missing", async 
   const { ragflowKnowledge } = await import("./integrations/ragflow-knowledge.js");
   await assert.rejects(() => ragflowKnowledge.run({ action: "datasets" }, { env: {} }), error => error.statusCode === 503 && /RAGFlow is not configured/.test(error.message));
 });
+
+
+test("AI status endpoint reports provider configuration without exposing credentials", async t => {
+  const server = createServer();
+  await new Promise(resolve => server.listen(0, "127.0.0.1", resolve));
+  t.after(() => new Promise(resolve => server.close(resolve)));
+  const response = await fetch(`http://127.0.0.1:${server.address().port}/api/ai/status`);
+  const body = await response.json();
+  assert.equal(response.status, 200);
+  assert.equal(typeof body.configured, "boolean");
+  assert.equal("apiKey" in body, false);
+});
+
+test("AI chat returns a clear setup error when no provider key is configured", async t => {
+  if (process.env.AI_API_KEY) return t.skip("AI_API_KEY exists in this test environment");
+  const server = createServer();
+  await new Promise(resolve => server.listen(0, "127.0.0.1", resolve));
+  t.after(() => new Promise(resolve => server.close(resolve)));
+  const response = await fetch(`http://127.0.0.1:${server.address().port}/api/ai/chat`, {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ message: "Hello" }),
+  });
+  assert.equal(response.status, 503);
+  assert.match((await response.json()).error, /AI provider is not configured/);
+});
