@@ -1,0 +1,19 @@
+services:
+  - type: web
+    name: alltools-ai
+    runtime: node
+    plan: starter
+    region: oregon
+    buildCommand: npm install && npm test && npm run build
+    startCommand: npm start
+    healthCheckPath: /api/health
+    autoDeploy: true
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: NODE_VERSION
+        value: 20
+      - key: RAGFLOW_BASE_URL
+        sync: false
+      - key: RAGFLOW_API_KEY
+        sync: false
