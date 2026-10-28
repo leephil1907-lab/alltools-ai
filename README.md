@@ -46,6 +46,19 @@ npm start
 
 The dashboard has a Node.js HTTP API, a shared integration contract, input validation, bounded in-memory run history, request-size and rate limits, health/registry endpoints, a live GitHub public-repository search adapter, and a RAGFlow knowledge adapter. Run history is process-memory only and resets on restart; user accounts, durable storage, provider-backed general AI, and isolated execution workers are not implemented yet.
 
+## Deploy on Render
+
+This repository includes a Render Blueprint at `render.yaml`. To deploy:
+
+1. Push the repository to GitHub (the Blueprint is configured to auto-deploy from the connected repository's default branch).
+2. In Render, choose **New → Blueprint** and select `leephil1907-lab/alltools-ai`.
+3. Review the service settings. The build runs `npm install`, `npm test`, and `npm run build`; the start command is `npm start`.
+4. Render checks `/api/health` after startup. The Node server serves both the built frontend and API on Render's supplied `PORT`.
+5. Once the service is live, use its actual Render URL to finalize the canonical URL and absolute Open Graph/Twitter image URLs in `index.html`. These are intentionally not tied to an unverified hostname yet.
+6. If you later connect a RAGFlow instance, add `RAGFLOW_BASE_URL` and `RAGFLOW_API_KEY` under the Render service's environment settings. Do not commit the API key.
+
+The Blueprint uses Render's free web-service plan, which may spin down after inactivity and take time to wake up. The current run history is in memory and resets on restarts; no persistent database or authentication is included.
+
 ## Planned architecture
 
 - `apps/web`: React dashboard and user experience.
