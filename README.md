@@ -44,7 +44,7 @@ npm start
 
 `npm start` serves the built frontend and API together on `PORT` (defaults to `8787`).
 
-The dashboard has a Node.js HTTP API, a shared integration contract, input validation, bounded in-memory run history, request-size and rate limits, health/registry endpoints, a live GitHub public-repository search adapter, and a RAGFlow knowledge adapter. Run history is process-memory only and resets on restart; user accounts, durable storage, provider-backed general AI, and isolated execution workers are not implemented yet.
+The application has a Node.js HTTP API, a shared integration contract, input validation, bounded in-memory run history, request-size and rate limits, health/registry endpoints, a live GitHub public-repository search adapter, a provider-backed AI chat endpoint, and a RAGFlow knowledge adapter. Run history is process-memory only and resets on restart; user accounts, durable storage, and isolated execution workers are not implemented yet. The AI Assistant requires an OpenAI-compatible provider key configured server-side.
 
 ## Deploy on Render
 
@@ -55,7 +55,8 @@ This repository includes a Render Blueprint at `render.yaml`. To deploy:
 3. Review the service settings. The build runs `npm install`, `npm test`, and `npm run build`; the start command is `npm start`.
 4. Render checks `/api/health` after startup. The Node server serves both the built frontend and API on Render's supplied `PORT`.
 5. Once the service is live, use its actual Render URL to finalize the canonical URL and absolute Open Graph/Twitter image URLs in `index.html`. These are intentionally not tied to an unverified hostname yet.
-6. If you later connect a RAGFlow instance, add `RAGFLOW_BASE_URL` and `RAGFLOW_API_KEY` under the Render service's environment settings. Do not commit the API key.
+6. To enable the AI Assistant, add `AI_API_KEY` in the Render service's environment settings. Optionally set `AI_MODEL` (defaults to `gpt-4o-mini`) and `AI_BASE_URL` (defaults to `https://api.openai.com/v1`; use the provider's OpenAI-compatible base URL if different). Never commit keys or expose them in frontend variables. The assistant checks `/api/ai/status` and sends chat requests through `/api/ai/chat`.
+7. If you connect a RAGFlow instance, add `RAGFLOW_BASE_URL` and `RAGFLOW_API_KEY` under the Render service's environment settings. Do not commit the API key.
 
 The Blueprint uses Render's free web-service plan, which may spin down after inactivity and take time to wake up. The current run history is in memory and resets on restarts; no persistent database or authentication is included.
 
@@ -77,7 +78,7 @@ The Blueprint uses Render's free web-service plan, which may spin down after ina
 7. Use `GET /api/health`, `GET /api/integrations`, `GET /api/tools`, and `GET /api/runs` to inspect the runtime.
 8. Execute an adapter with `POST /api/integrations/github-search/run` and JSON body `{"query":"RAGFlow"}`. Results are public repository metadata and link back to GitHub.
 9. Configure RAGFlow on the server with `RAGFLOW_BASE_URL` (your instance URL, without a path suffix) and `RAGFLOW_API_KEY`. Never put the key in frontend variables or commit it. See `.env.example` for the variable names.
-10. Call `POST /api/integrations/ragflow-knowledge/run` with `{"action":"datasets"}` to list datasets, or `{"action":"retrieve","question":"What does the documentation say?","datasetIds":["YOUR_DATASET_ID"]}` to retrieve relevant passages. The API key is sent only from the backend to RAGFlow. A reachable RAGFlow instance and at least one indexed dataset are required for real results.
+10. Call `GET /api/ai/status` to inspect AI provider configuration without revealing credentials. Send `POST /api/ai/chat` with `{"message":"Help me plan this task","history":[]}` for provider-backed chat. Call `POST /api/integrations/ragflow-knowledge/run` with `{"action":"datasets"}` to list datasets, or `{"action":"retrieve","question":"What does the documentation say?","datasetIds":["YOUR_DATASET_ID"]}` to retrieve relevant passages. The API key is sent only from the backend to RAGFlow. A reachable RAGFlow instance and at least one indexed dataset are required for real results.
 
 ## Integration discovery catalog
 
